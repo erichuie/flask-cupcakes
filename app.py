@@ -1,8 +1,8 @@
 """Flask app for Cupcakes"""
 import os
 
-from flask import Flask, render_template, redirect, jsonify, flash, request
-from models import db, Cupcake, connect_db, DEFAULT_IMAGE_URL
+from flask import Flask, jsonify, request
+from models import db, Cupcake, connect_db
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
@@ -53,10 +53,32 @@ def add_cupcake():
 
     return (jsonify(cupcake=new_cupcake.serialize()), 201)
 
-# @app.patch("/api/cupcakes/<int:cupcake_id>")
-# def update_single_cupcake(cupcake_id):
-#     """
-#     Update existing cupcake.
-#     Returns JSON {cupcake: {id, flavor, size, rating, image_url}}"""
+@app.patch("/api/cupcakes/<int:cupcake_id>")
+def update_single_cupcake(cupcake_id):
+    """
+    Update existing cupcake.
+    Returns JSON {cupcake: {id, flavor, size, rating, image_url}}"""
 
-#     cupcake = Cupcake.query.get_or_404(cupcake_id)
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    cupcake.flavor = request.json.get("flavor", cupcake.flavor)
+    cupcake.size = request.json.get("size", cupcake.size)
+    cupcake.rating = request.json.get("rating", cupcake.rating)
+    cupcake.image_url = request.json.get("image_url", cupcake.image_url)
+
+    db.session.commit()
+
+    return jsonify(cupcake=cupcake.serialize())
+
+@app.delete("/api/cupcakes/<int:cupcake_id>")
+def delete_single_cupcake(cupcake_id):
+    """
+    Remove a cupcake from the db.
+    Returns JSON {deleted: [cupcake-id]}"""
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    db.session.delete(cupcake)
+    db.session.commit()
+
+    return jsonify(deleted=cupcake_id)

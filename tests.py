@@ -27,6 +27,11 @@ CUPCAKE_DATA_2 = {
     "image_url": "http://test.com/cupcake2.jpg"
 }
 
+CUPCAKE_PATCH_DATA = {
+    "flavor": "PatchFlavor",
+    "size": "PatchSize"
+}
+
 
 class CupcakeViewsTestCase(TestCase):
     """Tests for views of API."""
@@ -105,3 +110,57 @@ class CupcakeViewsTestCase(TestCase):
             })
 
             self.assertEqual(Cupcake.query.count(), 2)
+
+    def test_update_cupcake(self):
+        """Ensures PATCH calls replace desired data and keep data that shouldn't
+        be changed"""
+
+        with app.test_client() as client:
+            url = f"/api/cupcakes/{self.cupcake_id}"
+            resp = client.patch(url, json=CUPCAKE_PATCH_DATA)
+
+            self.assertEqual(resp.status_code, 200)
+
+            data = resp.json
+
+            self.assertEqual(data, {
+                "cupcake": {
+                    "id": self.cupcake_id,
+                    "flavor": "PatchFlavor",
+                    "size": "PatchSize",
+                    "rating": 5,
+                    "image_url": "http://test.com/cupcake.jpg"
+                }
+            })
+
+    def test_delete_cupcake(self):
+        """Ensures DELETE calls remove the cupcake"""
+
+        with app.test_client() as client:
+            url = f"/api/cupcakes/{self.cupcake_id}"
+            resp = client.delete(url)
+
+            self.assertEqual(resp.status_code, 200)
+
+            data = resp.json
+
+            self.assertEqual(data, {
+                "deleted": self.cupcake_id
+            })
+
+            self.assertEqual(Cupcake.query.count(),0)
+
+
+    def test_404s(self):
+        """Make sure invalid URLs return 404 response codes"""
+
+        with app.test_client() as client:
+            url = "/api/cupcakes/5"
+            resp = client.get(url)
+            self.assertEqual(resp.status_code, 404)
+
+            resp = client.patch(url, json=CUPCAKE_PATCH_DATA)
+            self.assertEqual(resp.status_code, 404)
+
+            resp = client.delete(url)
+            self.assertEqual(resp.status_code, 404)
