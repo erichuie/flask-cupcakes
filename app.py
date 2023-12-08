@@ -2,7 +2,7 @@
 import os
 
 from flask import Flask, jsonify, request
-from models import db, Cupcake, connect_db
+from models import db, Cupcake, connect_db, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
@@ -65,6 +65,7 @@ def update_single_cupcake(cupcake_id):
     cupcake.size = request.json.get("size", cupcake.size)
     cupcake.rating = request.json.get("rating", cupcake.rating)
     cupcake.image_url = request.json.get("image_url", cupcake.image_url)
+    #TODO: Handle DEFAULT_IMAGE_URL (check for len?). Add what can be sent in request to docstring
 
     db.session.commit()
 

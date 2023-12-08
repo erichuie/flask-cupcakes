@@ -155,7 +155,7 @@ class CupcakeViewsTestCase(TestCase):
         """Make sure invalid URLs return 404 response codes"""
 
         with app.test_client() as client:
-            url = "/api/cupcakes/5"
+            url = "/api/cupcakes/0"
             resp = client.get(url)
             self.assertEqual(resp.status_code, 404)
 
