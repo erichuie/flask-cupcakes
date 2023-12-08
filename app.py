@@ -2,7 +2,7 @@
 import os
 
 from flask import Flask, render_template, redirect, jsonify, flash, request
-from models import db, Cupcake, connect_db
+from models import db, Cupcake, connect_db, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
@@ -15,10 +15,40 @@ connect_db(app)
 
 @app.get("/api/cupcakes")
 def get_cupcakes_data():
-    """Return JSON {'cupcakes': [{
+    """
+    Get info about all cupcakes.
+    Returns JSON {'cupcakes': [{
         id, flavor, size, rating, image_url
-    }]}"""
+    }, ...]}"""
 
     cupcakes_data = Cupcake.query.all()
     serialized = [cupcake.serialize() for cupcake in cupcakes_data]
     return jsonify(cupcakes=serialized)
+
+@app.get("/api/cupcakes/<int:cupcake_id>")
+def get_single_cupcake_data(cupcake_id):
+    """
+    Get info about a single cupcake.
+    Returns JSON {cupcake: {id, flavor, size, rating, image_url}}"""
+
+    cupcake_data = Cupcake.query.get_or_404(cupcake_id)
+
+    return jsonify(cupcake=cupcake_data.serialize())
+
+@app.post("/api/cupcakes")
+def add_cupcake():
+    """
+    Create new cupcake and add to db.
+    Returns JSON {cupcake: {id, flavor, size, rating, image_url}}"""
+
+    new_cupcake = Cupcake(flavor=request.json["flavor"],
+                          size = request.json["size"],
+                          rating = request.json["rating"],
+                          image_url = request.json.get("image_url",
+                                                       DEFAULT_IMAGE_URL)
+                        )
+
+    db.session.add(new_cupcake)
+    db.session.commit()
+
+    return jsonify(cupcake=new_cupcake.serialize())
