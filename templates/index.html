@@ -12,16 +12,16 @@
   <form id="cupcake_data_form">
 
     <label>Flavor: </label>
-    <input type="text" id="flavor_input">
+    <input type="text" id="flavor_input" required maxlength="50">
 
     <label>Rating: </label>
-    <input type="number" id="rating_input">
+    <input type="number" id="rating_input" required min="1" max="10">
 
     <label>Size: </label>
-    <input type="text" id="size_input">
+    <input type="text" id="size_input" required maxlength="15">
 
     <label>Image URL: </label>
-    <input type="url" id="image_input">
+    <input type="url" id="image_input" required maxlength="500">
 
     <button type="submit">Submit</button>
   </form>

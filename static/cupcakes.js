@@ -8,14 +8,10 @@ const $ratingInput = $("#rating_input");
 const $imageInput = $("#image_input");
 
 
-// 1) Fetch cupcake list (Fetch API)
-// 2) Loop through and add it to cupcake display
-
 getAndDisplayCupcakes();
+$cupcakeForm.on("submit", formSubmission);
 
-
-// 3) On form submit (event listener), make POST request (Fetch) and update list
-
+/**Makes a GET request to our cupcake API and returns a list of cupcake objects */
 async function getCupcakeData(){
   const response = await fetch("/api/cupcakes", {method: "GET"})
 
@@ -26,21 +22,26 @@ async function getCupcakeData(){
   return responseObj.cupcakes;
 }
 
+/**Empties the cupcake display list and redisplays cupcakes
+ * and their attributes passed into the function */
 function clearAndDisplayCupcakes(cupcakes){
   $cupcakeDisplay.empty();
-  for (let cupcake of cupcakes)
-  {
+
+  for (let cupcake of cupcakes){
     $cupcakeDisplay.append($(`<li>
     <p>Cupcake flavor: ${cupcake.flavor}</p>
     <p>Cupcake rating: ${cupcake.rating}</p>
     <p>Cupcake size: ${cupcake.size}</p>
-    <img src="${cupcake.image_url}">
+    <img src="${cupcake.image_url}" alt="${cupcake.flavor} cupcake">
     </li>`));
   }
 }
 
+/**Makes a POST request submitting all the information the user inputted
+ * about a new cupcake
+ */
 async function formSubmission(evt){
-  evt.preventDefault();
+  // evt.preventDefault();
 
   const inputs = {
     "flavor": $flavorInput.val(),
@@ -57,17 +58,14 @@ async function formSubmission(evt){
     }
   });
 
-  getAndDisplayCupcakes();
-  $flavorInput.val("");
-  $sizeInput.val("");
-  $ratingInput.val(0);
-  $imageInput.val("");
-
-
+  // getAndDisplayCupcakes();
+  // $flavorInput.val("");
+  // $sizeInput.val("");
+  // $ratingInput.val(0);
+  // $imageInput.val("");
 }
 
-$cupcakeForm.on("submit", formSubmission);
-
+/**Controller function that sets up the initial list of cupcakes */
 async function getAndDisplayCupcakes(){
   const cupcakes = await getCupcakeData();
   clearAndDisplayCupcakes(cupcakes);
